@@ -1,4 +1,4 @@
-<script type = "text/javascript">
+
 var pageName,  appendElements, jsonElements , elementName = null ;
 
  alert("Press ctrl + alt + a to spy the elements & ctrl + alt + z to stop spying");
@@ -412,4 +412,3 @@ window.addEventListener("keydown", function (zEvent) {
 	
      }
 } );
-</script>
