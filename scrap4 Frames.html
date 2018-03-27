@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> --> 
+<body>
+<!--Links: http://jsfiddle.net/roXon/dJgf4/ -->
+
+<!--Links: http://jsfiddle.net/MPTTp/ -->
+
+<!--Links: http://jsfiddle.net/HJf8q/2/ -->
+
+<!--Links: https://github.com/firebug/firebug/blob/master/extension/content/firebug/lib/xpath.js -->
+
+<!--https://stackoverflow.com/questions/24603580/how-can-i-access-the-dom-elements-within-an-iframe -->
+
+<!--https://github.com/caplin/SuperSelector/blob/gh-pages/superselector/superselector.js--> <!--get css selector--> <!--https://stackoverflow.com/questions/4588119/get-elements-css-selector-when-it-doesnt-have-an-id-->
+
+<!--Links:  9840856467 - rkr tiles-->
+
+
+<h1>Test</h1>
+
+<p id="demo">JavaScript can change HTML content.</p>
+<!--<button type="button" onclick="document.getElementById('demo').innerHTML = 'Hello JavaScript!'">Click Me!</button> -->
+
+<button type="button" name  = "btn" onClick="writeTextFile()">Click Me!</button> 
+<a class="test" href="https://www.google.com" > asdsdasd </a>
+
+<div id="content" style="display:none;"> asd</div>
+<h1> <center> testing </center> 
+<p id ="xaxis" style="border:1px solid #000;"> t = </p>
+<p id = "yaxis"> v = </p>
+
+</h1>
+<iframe sandbox="allow-same-origin allow-scripts allow-popups allow-forms" style ="width:900px; height: 500px;" id= "myFrame" src = "demoFrame.html"> </iframe>
+<script type = "text/javascript">
+<!--sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin" -->
+
+var pageName,  appendElements, jsonElements , elementName = null ;
+ var innerDoc;var doc = null; var frame = false;var yOffsetTop = 0;var yOffsetLeft = 0; var q =0; var outerDoc; var trap = false; 
+var start = false;
+
+ alert("Press ctrl + alt + a to spy the elements & ctrl + alt + z to stop spying");
+
+ window.addEventListener ("keydown", function (xEvent) {
+    if (xEvent.ctrlKey  &&  xEvent.altKey  &&  xEvent.keyCode == "65") 
+	
+	{
+
+
+		alert("Started spying elements");
+		var tagName, id, className, type, name, xpath ;
+		var str = ""
+		var x = document.createElement("DIV"), y = document.createElement("DIV");
+		var drop = document.createElement("DIV");
+
+		var textArea = document.createElement("div");
+
+		x.setAttribute("id" , "scrap");
+		x.setAttribute("class" , "tooltip");
+		x.setAttribute("name" , "tooltip");
+
+		//document.getElementById("scrap").onClick(toolHvr());
+
+
+		document.body.appendChild(x);
+	//	document.body.appendChild(textArea);
+
+		y.setAttribute("class" , "tooltiptext");
+		y.setAttribute("name" , "tooltiptext");
+
+		textArea.setAttribute("id" , "textValues");
+
+
+		drop.setAttribute("id", "dropdown");
+
+
+		x.style.position ="relative";
+			x.style.display="block"; 
+			x.style.opacity="1";
+			x.style.zindex="9999";	
+
+
+		y.style.visibility= "hidden";
+			y.style.background="#555";
+			y.style.color="#fff";
+			y.style.padding="10px";
+			y.style.position="fixed";
+			y.style.opacity="0";
+			y.style.transition="opacity 1s";
+			y.style.zindex="9999";	
+			
+			
+			drop.style.visibility= "visible";
+			drop.style.background="blue";
+			drop.style.color="#fff";
+			drop.style.padding="10px";
+			drop.style.position="relative";
+			drop.style.opacity="0";
+			drop.style.transition="opacity 1s";
+			drop.style.left="100px";
+			drop.style.zindex="9999";	
+
+
+
+
+		x.appendChild(y);
+		x.appendChild(drop);
+
+		// $(window).mouseover(function(e) {
+		 pageName = prompt("Please enter Page name:", "");
+			while (pageName == null || pageName == "") {
+				pageName = prompt("Please enter Page name:", "");
+			} 
+			
+			
+			
+		 window.addEventListener("mouseover",hvr);
+		//window.attachEvent("mouseover",hvr);
+		/*for(; q<1; q++){
+		q++;
+			document.getElementById("asdasd").click();
+		}*/
+		var i = 0; var temp;
+		function hvr(e) {
+
+
+		y.style.visibility="visible";
+
+		y.style.opacity="1";
+		y.style.cursor="pointer";
+
+
+		var t = e.clientX, v = e.clientY,
+		elementMouseIsOver = document.elementFromPoint(t, v);	
+		if(temp != t && temp != null) 
+			{	
+				if(i==1 && spanClassn !="tooltiptext") {
+					i=0;
+				}
+				if(i !=0) {
+					i=2;
+				}
+			}
+				
+		var spanClassn = spanClass(elementMouseIsOver);
+		if(spanClassn !="tooltiptext" && i==0) {
+
+			y.style.left = (t+1) + 'px';
+			y.style.top = (v) + 'px';
+
+		}
+		var Xpath = {};
+
+		Xpath.getElementXPath = function(element)
+		{
+			if (element && element.id)
+				return '//*[@id="' + element.id + '"]';
+			else
+				return Xpath.getElementTreeXPath(element);
+		};
+
+
+		Xpath.getElementTreeXPath = function(element)
+		{
+
+			var paths = [];
+
+			// Use nodeName (instead of localName) so namespace prefix is included (if any).
+			for (; element && element.nodeType == Node.ELEMENT_NODE; element = element.parentNode)
+			{
+				var index = 0;
+				var hasFollowingSiblings = false;
+				for (var sibling = element.previousSibling; sibling; sibling = sibling.previousSibling)
+				{
+					// Ignore document type declaration.
+					if (sibling.nodeType == Node.DOCUMENT_TYPE_NODE)
+						continue;
+
+					if (sibling.nodeName == element.nodeName)
+						++index;
+				}
+
+				for (var sibling = element.nextSibling; sibling && !hasFollowingSiblings;
+					sibling = sibling.nextSibling)
+				{
+					if (sibling.nodeName == element.nodeName)
+						hasFollowingSiblings = true;
+				}
+
+				var tagName = (element.prefix ? element.prefix + ":" : "") + element.localName;
+				var pathIndex = (index || hasFollowingSiblings ? "[" + (index + 1) + "]" : "");
+				paths.splice(0, 0, tagName + pathIndex);
+			}
+
+			return paths.length ? "/" + paths.join("/") : null;
+		};
+
+		function getCssSelector (el) {
+			var names = [];
+			  while (el.parentNode){
+				if (el.id){
+				  names.unshift('#'+el.id);
+				  break;
+				}else{
+				  if (el==el.ownerDocument.documentElement) names.unshift(el.tagName.toLowerCase());
+				  else{
+					for (var c=1,e=el;e.previousElementSibling;e=e.previousElementSibling,c++);
+					names.unshift(el.tagName.toLowerCase()+":nth-child("+c+")");
+				  }
+				  el=el.parentNode;
+				}
+			  }
+			  return names.join(" ");				  
+		}
+
+
+		if(spanClassn !="tooltiptext" && i ==0 ) {
+		 i=0;
+		  tagName = elementMouseIsOver.tagName;
+		  id = elementMouseIsOver.id ; 
+		  classNames = elementMouseIsOver.className;
+		  types = elementMouseIsOver.type;
+		  name = elementMouseIsOver.name;
+		  xpath = Xpath.getElementXPath(elementMouseIsOver);
+		  css = getCssSelector(elementMouseIsOver);
+
+
+		y.innerHTML="<p class= 'tooltiptext' id='tags'>Tag name = " + tagName + "</p><p id ='names' class= 'tooltiptext'>Name = " + name + "</p><p class= 'tooltiptext' id='ids'> id=  " + id+ "</p><p class= 'tooltiptext' id='classes'> ClassName = " + classNames + "</p><p class= 'tooltiptext' id='types'> Type= " + types + "</p> <p class= 'tooltiptext' id='xpaths'>xpath = " + xpath+ "</p><p class= 'tooltiptext' id='cssSelect'>css = " + css+ "</p>"; 
+
+		temp =t;
+	
+		}
+
+		 if(spanClassn =="tooltiptext" ) 
+		{
+		 
+			  if(id != null && id !="" && id != "undefined") {
+			 var idName = document.getElementById("ids");
+			 idName.onclick = function() 
+				{
+					elementName = prompt("Please enter WebElement name:", "");
+						while (elementName == null || elementName == "") 
+						{
+							elementName = prompt("Please enter WebElement name:", "");
+						} 
+						appendElements =('"Locator": "ID:' + id+'"'+ " \n"); textArea.innerText=appendElements;
+						if(jsonElements == null || jsonElements =="" ) 
+						{
+							jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+						}
+						else 
+						{
+							jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+						}
+					//str += ("id : " + id + "\n"); textArea.innerText=str;
+				};
+			 }
+			 
+			 if(id != null && id !="" && id != "undefined") {
+			 var idName = document.getElementById("cssSelect");
+			 idName.onclick = function() 
+				{
+					elementName = prompt("Please enter WebElement name:", "");
+						while (elementName == null || elementName == "") 
+						{
+							elementName = prompt("Please enter WebElement name:", "");
+						} 
+						appendElements =('"Locator": "CssSelector:' + css+'"'+ " \n"); textArea.innerText=appendElements;
+						if(jsonElements == null || jsonElements =="" ) 
+						{
+							jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+						}
+						else 
+						{
+							jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+						}
+					//str += ("id : " + id + "\n"); textArea.innerText=str;
+				};
+			 }
+			  if(tagName != null && tagName !="" && tagName != "undefined") {
+			  var idName = document.getElementById("tags");
+			 idName.onclick = function() 
+				{
+					 elementName = prompt("Please enter WebElement name:", "");
+						while (elementName == null || elementName == "") 
+						{
+							elementName = prompt("Please enter WebElement name:", "");
+						} 
+						appendElements =('"Locator": "TagName:' + tagName+'"'+ " \n"); textArea.innerText=appendElements;
+						
+						
+						if(jsonElements == null || jsonElements =="" ) 
+						{
+							jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+						}
+						else 
+						{
+							jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+						}
+					//str += ("Tagname : " + tagName + ", \n"); textArea.innerText=str; 
+					
+					if(tagName.toLowerCase().indexOf("frame")>=0) 
+					{
+						 outerDoc = getElementByXpath(css);
+						//var outerDoc = document.querySelector(css);
+						if(yOffsetTop ===0)
+							yOffsetTop = getOffset(outerDoc).top
+						if(yOffsetLeft ===0)
+							yOffsetLeft = getOffset(outerDoc).left
+						var isInnerFrame = (outerDoc.contentWindow || outerDoc.contentDocument);
+						if (isInnerFrame.document) isInnerFrame = isInnerFrame.document;
+						innerDoc = isInnerFrame;
+						doc = innerDoc;
+						frame = true;
+						frameChecker(isInnerFrame);
+						// isInnerFrame.addEventListener("mouseover",frameHvr);
+				//		alert(window.frames[0].document.getElementsByTagName("a")[0].innerText);
+					//	alert(window.addEventListener("mouseover",hvr));
+						
+					}
+				};
+			//idName.onclick = writeTextFile(tagName);
+
+					
+			}
+			
+			function getOffset(el) {
+			  el = el.getBoundingClientRect();
+			  return {
+				left: el.left + window.scrollX,
+				top: el.top + window.scrollY
+			  }
+			}
+			function getElementByXpath(path) {
+			if(doc===null) doc = document;
+			//return dom element by xpath
+			//  return doc.evaluate(path, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			 
+			
+				return doc.querySelector(css);
+			 
+			}
+			var frDoc = null;
+			
+			function frameChecker(isInnerFrame) 
+			{
+				if(frDoc != innerDoc)
+				{
+					//y.style.visibility="hidden";
+					var x = innerDoc.createElement("DIV"), y = innerDoc.createElement("DIV");
+					var drop = innerDoc.createElement("DIV");
+
+					var textArea = innerDoc.createElement("div");
+
+					x.setAttribute("id" , "scrap");
+					x.setAttribute("class" , "tooltip");
+					x.setAttribute("name" , "tooltip");
+
+					//document.getElementById("scrap").onClick(toolHvr());
+
+
+					innerDoc.body.appendChild(x);
+				//	document.body.appendChild(textArea);
+
+					y.setAttribute("class" , "tooltiptext");
+					y.setAttribute("name" , "tooltiptext");
+
+					textArea.setAttribute("id" , "textValues");
+
+
+					drop.setAttribute("id", "dropdown");
+
+
+					x.style.position ="relative";
+						x.style.display="block"; 
+						x.style.opacity="1";
+						x.style.zindex="9999";	
+
+
+					y.style.visibility= "hidden";
+						y.style.background="#555";
+						y.style.color="#fff";
+						y.style.padding="10px";
+						y.style.position="fixed";
+						y.style.opacity="0";
+						y.style.transition="opacity 1s";
+						y.style.zindex="9999";	
+						
+						
+						drop.style.visibility= "visible";
+						drop.style.background="blue";
+						drop.style.color="#fff";
+						drop.style.padding="10px";
+						drop.style.position="relative";
+						drop.style.opacity="0";
+						drop.style.transition="opacity 1s";
+						drop.style.left="100px";
+						drop.style.zindex="9999";	
+
+
+
+
+					x.appendChild(y);
+					x.appendChild(drop);
+					
+					frDoc = innerDoc;
+				}
+				isInnerFrame.addEventListener("mouseover",frameHvr);
+			}
+			
+		function frameHvr(e) 
+		{
+		try {
+		y.style.visibility= "hidden";
+		}
+			catch(err) {
+			}
+			if(frame) 
+			{
+				
+				
+				y.style.visibility="visible";
+
+				y.style.opacity="1";
+				y.style.cursor="pointer";
+			}
+
+		
+		
+			var ft = e.clientX, fv = e.clientY  ,
+			elementMouseIsOver = innerDoc.elementFromPoint(ft, fv);
+			//alert(elementMouseIsOver.tagName);
+			try {
+					tagName = elementMouseIsOver.tagName;
+					
+					}
+					
+				catch(err) {
+					doc = document;
+					elementMouseIsOver = document.elementFromPoint(e.screenX, e.screenY);
+					
+					}
+			 tagName = elementMouseIsOver.tagName;
+		  id = elementMouseIsOver.id ; 
+		  classNames = elementMouseIsOver.className;
+		  types = elementMouseIsOver.type;
+		  name = elementMouseIsOver.name;
+		  xpath = Xpath.getElementXPath(elementMouseIsOver);
+		  css = getCssSelector(elementMouseIsOver);
+			var spanClassn = spanClass(elementMouseIsOver);
+		  if(spanClassn !="tooltiptext" && i==0) {
+
+		//	y.style.left = (ft+1)+yOffsetLeft + 'px';
+		//	y.style.top = (fv)+yOffsetTop + 'px';
+		y.style.left = e.screenX +1 + 'px';
+			y.style.top = e.screenY-60 + 'px';
+
+		}
+
+		y.innerHTML="<p class= 'tooltiptext' id='tags'>Tag name = " + tagName + "</p><p id ='names' class= 'tooltiptext'>Name = " + name + "</p><p class= 'tooltiptext' id='ids'> id=  " + id+ "</p><p class= 'tooltiptext' id='classes'> ClassName = " + classNames + "</p><p class= 'tooltiptext' id='types'> Type= " + types + "</p> <p class= 'tooltiptext' id='xpaths'>xpath = " + xpath+ "</p><p class= 'tooltiptext' id='cssSelect'>css = " + css+ "</p>"; 
+
+		
+		}
+/**
+
+var x = document.getElementById("iframeResult");
+var y = (x.contentWindow || x.contentDocument);
+alert(x.contentWindow); alert(x.contentDocument);
+if (y.document)y = y.document;
+var z = y.getElementsByTagName("frameset")[0];
+alert(z.getElementsByTagName("frame")[0]);
+alert(z.getElementsByTagName("frame")[0].contentWindow); 
+var a = (z.getElementsByTagName("frame")[0].contentWindow || z.getElementsByTagName("frame")[0].contentDocument);
+alert(a.contentWindow); alert(a.contentDocument);
+if(a.document)a = a.document;
+alert(a.getElementsByTagName("body")[0].getElementsByTagName("h3")[0]);
+a.getElementsByTagName("body")[0].getElementsByTagName("h3")[0];
+
+
+*/
+
+
+				if(classNames != null && classNames !="" && classNames != "undefined") 
+				{
+					  var idName = document.getElementById("classes");
+					 idName.onclick = function() 
+					 {
+						 elementName = prompt("Please enter WebElement name:", "");
+						while (elementName == null || elementName == "") 
+						{
+							elementName = prompt("Please enter WebElement name:", "");
+						} 
+						appendElements =('"Locator": "Class Name:'  + classNames +'"'+ " \n"); textArea.innerText=appendElements;
+						if(jsonElements == null || jsonElements =="" ) 
+						{
+							jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+						}
+						else 
+						{
+							jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+						}
+						//str +=("Class Name : " + classNames + " , \n"); textArea.innerText=str;
+					};
+				} 
+			 
+			 if(xpath != null && xpath !="" && xpath != "undefined") {
+			  var idName = document.getElementById("xpaths");
+			 idName.onclick = function() 
+				{
+					elementName = prompt("Please enter WebElement name:", "");
+					while (elementName == null || elementName == "") 
+					{
+						elementName = prompt("Please enter WebElement name:", "");
+					} 
+					appendElements =('"Locator": "Xpath:' + xpath +'"'+ " \n"); textArea.innerText=appendElements;
+					if(jsonElements == null || jsonElements =="" ) 
+					{
+						jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+					}
+					else 
+					{
+						jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+					}
+					 //console.log('{ \n  "'+elementName +'" : { \n \t \t ' + str + '\t \t } \n }' );
+				};
+			 }
+			 
+			 if(name != null && name !="" && name != "undefined") {
+			 
+			  var idName = document.getElementById("names");
+			 //idName.onclick = function() {str += ("Name : " + name + ", \n");textArea.innerText=str;};
+			 
+			 idName.onclick = function() 
+				{
+					elementName = prompt("Please enter WebElement name:", "");
+					while (elementName == null || elementName == "") 
+					{
+						elementName = prompt("Please enter WebElement name:", "");
+					} 
+					appendElements =('"Locator":"Name:' + name +'"'+ " \n"); textArea.innerText=appendElements;
+					if(jsonElements == null || jsonElements =="") 
+					{
+						jsonElements = '\n \t \t "'+elementName +'" : {  \n \t \t \t ' + appendElements + '\t \t \t }, \n ';
+					}
+					else 
+					{
+						jsonElements += ' \n \t \t "'+elementName +'" : { \n \t \t \t' + appendElements + '\t \t \t }, \n ';
+					}
+			//console.log('{ \n  "'+elementName +'" : { \n \t \t ' + str + '\t \t } \n }' );
+				};
+			 }
+			 
+			  if(types != null && types !="" && types != "undefined") {
+			 var idName = document.getElementById("types");
+			 idName.onclick = function() {str += ("Type : " + types + ", \n"); textArea.innerText=str;};
+			
+			}
+			i = 1;
+		
+		}
+
+		
+
+
+		function tagNames(element) 
+		{
+
+			var asd = element.tagName;
+
+			return element.tagName;
+
+		}
+
+		function spanClass(element) 
+		{
+
+		var classn = element.className;
+			return classn;
+
+		}
+
+		};
+		
+		
+	}
+	
+	
+
+    if (xEvent.ctrlKey  &&  xEvent.altKey  &&  xEvent.keyCode == "90") {
+			start = false;
+			console.log('{ \n \t"' +pageName + '": {' + jsonElements + '\t }\n }'  );
+		//	console.log(jsonElements + '\t }\n }');
+				alert("Web elements are stored in json format. Kindly view the console"); 
+		window.removeEventListener("mouseover",hvr);				
+		}
+} );
+
+
+
+
+
+
+function writeTextFile() {
+//	var txtFile = new File("P:\Users\gurudath.v\Documents\test.txt");
+//	var textToSave = document.getElementById("inputTextToSave").value;
+    var textToSaveAsBlob = new Blob([textArea.textContent], {type:"text/plain"});
+    var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+    var fileNameToSaveAs = "test";
+ 
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    downloadLink.href = textToSaveAsURL;
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+ 
+    downloadLink.click();
+}
+
+function destroyClickedElement(event)
+{
+    document.body.removeChild(event.target);
+}
+
+//}
+
+</script>
+</body>
+</html>
+
